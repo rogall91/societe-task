@@ -11,3 +11,4 @@
 9. The database is in-memory H2, so the project runs without setup. Publication numbers are drawn through the `PublicationNumberGenerator` interface; the only implementation, `SequencePublicationNumberGenerator`, reads an H2 sequence (`schema.sql`). Another database needs only a new implementation of that interface.
 10. No authentication.
 11. Concurrent changes to the same request are prevented with optimistic locking (`@Version`). The operation that commits second fails with `409 Conflict` and can be retried.
+12. The domain model is separate from the JPA model. The `RequestRepository` interface uses Spring Data's `Page` and `Pageable` types for paging: they come from Spring Data Commons, not JPA, and avoid a custom paging type.

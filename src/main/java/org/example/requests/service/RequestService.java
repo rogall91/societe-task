@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.requests.domain.PublicationNumberGenerator;
 import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestNotFoundException;
+import org.example.requests.domain.RequestRepository;
 import org.example.requests.domain.RequestState;
 import org.example.requests.domain.StateChange;
-import org.example.requests.repository.RequestRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,36 +44,36 @@ public class RequestService {
     public Request editContent(Long id, String content) {
         Request request = get(id);
         request.editContent(content);
-        return request;
+        return repository.save(request);
     }
 
     public Request verify(Long id) {
         Request request = get(id);
         request.verify();
-        return request;
+        return repository.save(request);
     }
 
     public Request accept(Long id) {
         Request request = get(id);
         request.accept();
-        return request;
+        return repository.save(request);
     }
 
     public Request reject(Long id, String reason) {
         Request request = get(id);
         request.reject(reason);
-        return request;
+        return repository.save(request);
     }
 
     public Request delete(Long id, String reason) {
         Request request = get(id);
         request.delete(reason);
-        return request;
+        return repository.save(request);
     }
 
     public Request publish(Long id) {
         Request request = get(id);
         request.publish(publicationNumberGenerator);
-        return request;
+        return repository.save(request);
     }
 }

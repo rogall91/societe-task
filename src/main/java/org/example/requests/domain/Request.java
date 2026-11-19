@@ -1,61 +1,41 @@
 package org.example.requests.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Entity
-@Table(name = "requests")
+/**
+ * A request and its business rules. Plain Java: persistence is handled by {@link RequestRepository}.
+ */
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Request {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false, length = 10000)
+    private final Long id;
+    private final String name;
     private String content;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private RequestState state;
-
     private String reason;
-
-    @Column(unique = true)
     private Long publicationNumber;
-
-    @Version
-    private Long version;
-
-    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    @OrderBy("id")
-    private List<StateChange> history = new ArrayList<>();
+    private final Long version;
+    private final List<StateChange> history;
 
     public Request(String name, String content) {
-        this.name = requireText(name, "name");
-        this.content = requireText(content, "content");
-        this.state = RequestState.CREATED;
-        history.add(new StateChange(this, null, RequestState.CREATED, null));
+        this(null, requireText(name, "name"), requireText(content, "content"), RequestState.CREATED,
+                null, null, null, new ArrayList<>());
+        history.add(new StateChange(null, RequestState.CREATED, null));
+    }
+
+    /**
+     * Rebuilds a request loaded from storage.
+     */
+    public static Request restore(Long id, String name, String content, RequestState state, String reason,
+                                  Long publicationNumber, Long version, List<StateChange> history) {
+        return new Request(id, name, content, state, reason, publicationNumber, version, new ArrayList<>(history));
     }
 
     public void editContent(String content) {
@@ -90,7 +70,7 @@ public class Request {
         if (!state.canMoveTo(target)) {
             throw new InvalidStateException("Cannot move request from " + state + " to " + target);
         }
-        history.add(new StateChange(this, state, target, reason));
+        history.add(new StateChange(state, target, reason));
         this.state = target;
         if (reason != null) {
             this.reason = reason;
