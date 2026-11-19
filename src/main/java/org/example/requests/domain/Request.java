@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,9 @@ public class Request {
 
     @Column(unique = true)
     private Long publicationNumber;
+
+    @Version
+    private Long version;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
     @OrderBy("id")

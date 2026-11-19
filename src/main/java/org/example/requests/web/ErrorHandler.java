@@ -2,6 +2,7 @@ package org.example.requests.web;
 
 import org.example.requests.domain.InvalidStateException;
 import org.example.requests.domain.RequestNotFoundException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +20,12 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidStateException.class)
     ProblemDetail invalidState(InvalidStateException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    ProblemDetail concurrentUpdate(OptimisticLockingFailureException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "Request was modified by another operation, please retry");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

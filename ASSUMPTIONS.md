@@ -10,3 +10,4 @@
 8. The name filter is a case-insensitive "contains" match. The state filter is an exact match. Pages start at 0. The list is sorted newest first.
 9. The database is in-memory H2, so the project runs without setup. The publication number sequence uses H2 syntax (`schema.sql`, `RequestRepository`).
 10. No authentication.
+11. Concurrent changes to the same request are prevented with optimistic locking (`@Version`). The operation that commits second fails with `409 Conflict` and can be retried.
