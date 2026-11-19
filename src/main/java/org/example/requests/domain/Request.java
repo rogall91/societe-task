@@ -81,9 +81,9 @@ public class Request {
         moveTo(RequestState.DELETED, requireText(reason, "reason"));
     }
 
-    public void publish(long publicationNumber) {
+    public void publish(PublicationNumberGenerator generator) {
         moveTo(RequestState.PUBLISHED, null);
-        this.publicationNumber = publicationNumber;
+        this.publicationNumber = generator.next();
     }
 
     private void moveTo(RequestState target, String reason) {

@@ -27,7 +27,7 @@ class RequestTest {
         Request request = new Request("name", "body");
         request.verify();
         request.accept();
-        request.publish(7);
+        request.publish(() -> 7);
 
         assertThat(request.getState()).isEqualTo(RequestState.PUBLISHED);
         assertThat(request.getPublicationNumber()).isEqualTo(7);
@@ -76,7 +76,10 @@ class RequestTest {
     void transitionsOutsideTheDiagramAreRefused() {
         Request request = new Request("name", "body");
         assertThatThrownBy(request::accept).isInstanceOf(InvalidStateException.class);
-        assertThatThrownBy(() -> request.publish(1)).isInstanceOf(InvalidStateException.class);
+        PublicationNumberGenerator mustNotBeCalled = () -> {
+            throw new AssertionError("no number may be drawn for an invalid publish");
+        };
+        assertThatThrownBy(() -> request.publish(mustNotBeCalled)).isInstanceOf(InvalidStateException.class);
         assertThatThrownBy(() -> request.reject("x")).isInstanceOf(InvalidStateException.class);
 
         request.verify();

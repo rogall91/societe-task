@@ -8,6 +8,6 @@
 6. The publication number comes from a database sequence, so it is unique (but not necessarily gap-free).
 7. Each action has its own endpoint. Delete is `POST /{id}/delete` because it takes a body with the reason.
 8. The name filter is a case-insensitive "contains" match. The state filter is an exact match. Pages start at 0. The list is sorted newest first.
-9. The database is in-memory H2, so the project runs without setup. The publication number sequence uses H2 syntax (`schema.sql`, `RequestRepository`).
+9. The database is in-memory H2, so the project runs without setup. Publication numbers are drawn through the `PublicationNumberGenerator` interface; the only implementation, `SequencePublicationNumberGenerator`, reads an H2 sequence (`schema.sql`). Another database needs only a new implementation of that interface.
 10. No authentication.
 11. Concurrent changes to the same request are prevented with optimistic locking (`@Version`). The operation that commits second fails with `409 Conflict` and can be retried.

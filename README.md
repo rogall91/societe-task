@@ -45,7 +45,8 @@ Errors: `400` invalid input, `404` request not found, `409` action not allowed i
 
 ## Structure
 
-- `domain`: the `Request` entity with the business rules, `RequestState` with the allowed transitions, and `StateChange` (the audit log entry)
+- `domain`: the `Request` entity with the business rules, `RequestState` with the allowed transitions, `StateChange` (the audit log entry) and the `PublicationNumberGenerator` interface
 - `repository`: Spring Data JPA repository
+- `infrastructure`: `SequencePublicationNumberGenerator`, which reads publication numbers from a database sequence
 - `service`: transactional use cases
 - `web`: REST controller and error handling

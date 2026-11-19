@@ -15,7 +15,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
               and (:state is null or r.state = :state)
             """)
     Page<Request> search(String name, RequestState state, Pageable pageable);
-
-    @Query(value = "select next value for publication_number_seq", nativeQuery = true)
-    long nextPublicationNumber();
 }

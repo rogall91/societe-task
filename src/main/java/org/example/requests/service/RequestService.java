@@ -1,6 +1,7 @@
 package org.example.requests.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.requests.domain.PublicationNumberGenerator;
 import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestNotFoundException;
 import org.example.requests.domain.RequestState;
@@ -19,6 +20,7 @@ import java.util.List;
 public class RequestService {
 
     private final RequestRepository repository;
+    private final PublicationNumberGenerator publicationNumberGenerator;
 
     public Request create(String name, String content) {
         return repository.save(new Request(name, content));
@@ -71,7 +73,7 @@ public class RequestService {
 
     public Request publish(Long id) {
         Request request = get(id);
-        request.publish(repository.nextPublicationNumber());
+        request.publish(publicationNumberGenerator);
         return request;
     }
 }
