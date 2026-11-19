@@ -1,0 +1,51 @@
+# Request Management Service
+
+A Spring Boot REST service that manages the lifecycle of requests according to this state diagram:
+
+```
+CREATED ──verify──► VERIFIED ──accept──► ACCEPTED ──publish──► PUBLISHED
+   │                   │                    │
+ delete (reason)    reject (reason)      reject (reason)
+   ▼                   ▼                    ▼
+DELETED             REJECTED             REJECTED
+```
+
+Assumptions are listed in [ASSUMPTIONS.md](ASSUMPTIONS.md).
+
+## Run
+
+Requires Java 21+ and Maven 3.9+.
+
+```bash
+mvn spring-boot:run
+```
+
+Run the tests (the coverage report is written to `target/site/jacoco/index.html`):
+
+```bash
+mvn verify
+```
+
+## API
+
+| Method | Path | Body | Description |
+|---|---|---|---|
+| `POST` | `/api/requests` | `{"name", "content"}` | Create a request |
+| `GET` | `/api/requests?name=&state=&page=0&size=10` | – | List with pagination (default size 10), filter by name and state |
+| `GET` | `/api/requests/{id}` | – | Get a request |
+| `GET` | `/api/requests/{id}/history` | – | State change history (audit log) |
+| `PUT` | `/api/requests/{id}/content` | `{"content"}` | Edit content (only in `CREATED` or `VERIFIED`) |
+| `POST` | `/api/requests/{id}/verify` | – | `CREATED → VERIFIED` |
+| `POST` | `/api/requests/{id}/accept` | – | `VERIFIED → ACCEPTED` |
+| `POST` | `/api/requests/{id}/publish` | – | `ACCEPTED → PUBLISHED`, assigns a unique publication number |
+| `POST` | `/api/requests/{id}/reject` | `{"reason"}` | `VERIFIED` or `ACCEPTED → REJECTED` |
+| `POST` | `/api/requests/{id}/delete` | `{"reason"}` | `CREATED → DELETED` |
+
+Errors: `400` invalid input, `404` request not found, `409` action not allowed in the current state.
+
+## Structure
+
+- `domain`: the `Request` entity with the business rules, `RequestState` with the allowed transitions, and `StateChange` (the audit log entry)
+- `repository`: Spring Data JPA repository
+- `service`: transactional use cases
+- `web`: REST controller and error handling
