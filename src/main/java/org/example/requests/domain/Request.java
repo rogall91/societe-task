@@ -10,6 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +20,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "requests")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Request {
 
     @Id
@@ -41,9 +46,6 @@ public class Request {
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
     @OrderBy("id")
     private List<StateChange> history = new ArrayList<>();
-
-    protected Request() {
-    }
 
     public Request(String name, String content) {
         this.name = requireText(name, "name");
@@ -96,30 +98,6 @@ public class Request {
             throw new IllegalArgumentException(field + " must not be blank");
         }
         return value;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public RequestState getState() {
-        return state;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public Long getPublicationNumber() {
-        return publicationNumber;
     }
 
     public List<StateChange> getHistory() {

@@ -8,6 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
@@ -16,6 +19,8 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "request_state_changes")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StateChange {
 
     @Id
@@ -37,30 +42,11 @@ public class StateChange {
     @Column(nullable = false)
     private Instant changedAt;
 
-    protected StateChange() {
-    }
-
     StateChange(Request request, RequestState fromState, RequestState toState, String reason) {
         this.request = request;
         this.fromState = fromState;
         this.toState = toState;
         this.reason = reason;
         this.changedAt = Instant.now();
-    }
-
-    public RequestState getFromState() {
-        return fromState;
-    }
-
-    public RequestState getToState() {
-        return toState;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public Instant getChangedAt() {
-        return changedAt;
     }
 }

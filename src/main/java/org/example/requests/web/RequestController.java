@@ -2,6 +2,7 @@ package org.example.requests.web;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestState;
 import org.example.requests.domain.StateChange;
@@ -26,13 +27,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/requests")
+@RequiredArgsConstructor
 public class RequestController {
 
     private final RequestService service;
-
-    public RequestController(RequestService service) {
-        this.service = service;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

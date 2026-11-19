@@ -1,5 +1,6 @@
 package org.example.requests.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestNotFoundException;
 import org.example.requests.domain.RequestState;
@@ -14,13 +15,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class RequestService {
 
     private final RequestRepository repository;
-
-    public RequestService(RequestRepository repository) {
-        this.repository = repository;
-    }
 
     public Request create(String name, String content) {
         return repository.save(new Request(name, content));
