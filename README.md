@@ -46,6 +46,6 @@ Errors: `400` invalid input, `404` request not found, `409` action not allowed i
 ## Structure
 
 - `domain`: plain Java with no JPA. `Request` holds the business rules, `RequestState` the allowed transitions and `StateChange` an audit log entry. The `RequestRepository` and `PublicationNumberGenerator` interfaces describe what the domain needs from storage.
-- `infrastructure`: implementations of those interfaces. `persistence` has the JPA entities (`RequestEntity`, `StateChangeEntity`) and `JpaRequestRepository`, which maps between them and the domain classes. `SequencePublicationNumberGenerator` reads publication numbers from a database sequence.
+- `infrastructure.persistence`: implementations of those interfaces. `RequestEntity` and `StateChangeEntity` are the JPA entities, and `JpaRequestRepository` maps between them and the domain classes. `SequencePublicationNumberGenerator` issues publication numbers from a JPA sequence generator.
 - `service`: transactional use cases
 - `web`: REST controller and error handling

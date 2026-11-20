@@ -8,7 +8,7 @@
 6. The publication number comes from a database sequence, so it is unique (but not necessarily gap-free).
 7. Each action has its own endpoint. Delete is `POST /{id}/delete` because it takes a body with the reason.
 8. The name filter is a case-insensitive "contains" match. The state filter is an exact match. Pages start at 0. The list is sorted newest first.
-9. The database is in-memory H2, so the project runs without setup. Publication numbers are drawn through the `PublicationNumberGenerator` interface; the only implementation, `SequencePublicationNumberGenerator`, reads an H2 sequence (`schema.sql`). Another database needs only a new implementation of that interface.
+9. The database is in-memory H2, so the project runs without setup. The code has no database-specific SQL: publication numbers come from a JPA `@SequenceGenerator` (a `publication_numbers` table records each issued number), so switching databases only needs `spring.datasource.*` and a JDBC driver.
 10. No authentication.
 11. Concurrent changes to the same request are prevented with optimistic locking (`@Version`). The operation that commits second fails with `409 Conflict` and can be retried.
 12. The domain model is separate from the JPA model. The `RequestRepository` interface uses Spring Data's `Page` and `Pageable` types for paging: they come from Spring Data Commons, not JPA, and avoid a custom paging type.
