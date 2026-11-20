@@ -11,9 +11,11 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Stores domain {@link Request}s as JPA entities and maps between the two models.
@@ -27,7 +29,8 @@ class JpaRequestRepository implements RequestRepository {
 
     @Override
     public Request save(Request request) {
-        RequestEntity entity = request.getId() == null ? new RequestEntity() : loadForUpdate(request);
+        // A request that was never stored has no version yet.
+        RequestEntity entity = request.getVersion() == null ? newEntity(request) : loadForUpdate(request);
         entity.name = request.getName();
         entity.content = request.getContent();
         entity.state = request.getState();
@@ -44,7 +47,7 @@ class JpaRequestRepository implements RequestRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Request> findById(Long id) {
+    public Optional<Request> findById(UUID id) {
         return jpa.findById(id).map(JpaRequestRepository::toDomain);
     }
 
@@ -52,6 +55,13 @@ class JpaRequestRepository implements RequestRepository {
     @Transactional(readOnly = true)
     public Page<Request> search(String name, RequestState state, Pageable pageable) {
         return jpa.search(name, state, pageable).map(JpaRequestRepository::toDomain);
+    }
+
+    private static RequestEntity newEntity(Request request) {
+        RequestEntity entity = new RequestEntity();
+        entity.id = request.getId();
+        entity.createdAt = Instant.now();
+        return entity;
     }
 
     private RequestEntity loadForUpdate(Request request) {

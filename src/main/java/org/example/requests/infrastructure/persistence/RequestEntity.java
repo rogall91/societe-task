@@ -5,7 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
@@ -13,16 +12,21 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import org.example.requests.domain.RequestState;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "requests")
 class RequestEntity {
 
     @Id
-    @GeneratedValue
-    Long id;
+    UUID id;
+
+    /** Used only to order the list newest first; not part of the domain model. */
+    @Column(nullable = false, updatable = false)
+    Instant createdAt;
 
     @Column(nullable = false)
     String name;

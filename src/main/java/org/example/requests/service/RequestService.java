@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -27,12 +28,12 @@ public class RequestService {
     }
 
     @Transactional(readOnly = true)
-    public Request get(Long id) {
+    public Request get(UUID id) {
         return repository.findById(id).orElseThrow(() -> new RequestNotFoundException(id));
     }
 
     @Transactional(readOnly = true)
-    public List<StateChange> history(Long id) {
+    public List<StateChange> history(UUID id) {
         return List.copyOf(get(id).getHistory());
     }
 
@@ -41,37 +42,37 @@ public class RequestService {
         return repository.search(name, state, pageable);
     }
 
-    public Request editContent(Long id, String content) {
+    public Request editContent(UUID id, String content) {
         Request request = get(id);
         request.editContent(content);
         return repository.save(request);
     }
 
-    public Request verify(Long id) {
+    public Request verify(UUID id) {
         Request request = get(id);
         request.verify();
         return repository.save(request);
     }
 
-    public Request accept(Long id) {
+    public Request accept(UUID id) {
         Request request = get(id);
         request.accept();
         return repository.save(request);
     }
 
-    public Request reject(Long id, String reason) {
+    public Request reject(UUID id, String reason) {
         Request request = get(id);
         request.reject(reason);
         return repository.save(request);
     }
 
-    public Request delete(Long id, String reason) {
+    public Request delete(UUID id, String reason) {
         Request request = get(id);
         request.delete(reason);
         return repository.save(request);
     }
 
-    public Request publish(Long id) {
+    public Request publish(UUID id) {
         Request request = get(id);
         request.publish(publicationNumberGenerator);
         return repository.save(request);

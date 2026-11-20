@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A request and its business rules. Plain Java: persistence is handled by {@link RequestRepository}.
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Request {
 
-    private final Long id;
+    private final UUID id;
     private final String name;
     private String content;
     private RequestState state;
@@ -25,7 +26,7 @@ public class Request {
     private final List<StateChange> history;
 
     public Request(String name, String content) {
-        this(null, requireText(name, "name"), requireText(content, "content"), RequestState.CREATED,
+        this(UUID.randomUUID(), requireText(name, "name"), requireText(content, "content"), RequestState.CREATED,
                 null, null, null, new ArrayList<>());
         history.add(new StateChange(null, RequestState.CREATED, null));
     }
@@ -33,7 +34,7 @@ public class Request {
     /**
      * Rebuilds a request loaded from storage.
      */
-    public static Request restore(Long id, String name, String content, RequestState state, String reason,
+    public static Request restore(UUID id, String name, String content, RequestState state, String reason,
                                   Long publicationNumber, Long version, List<StateChange> history) {
         return new Request(id, name, content, state, reason, publicationNumber, version, new ArrayList<>(history));
     }

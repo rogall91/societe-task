@@ -31,7 +31,7 @@ class RequestControllerTest {
 
     @Test
     void fullLifecycle() throws Exception {
-        long id = create("Grant", "Please approve");
+        String id = create("Grant", "Please approve");
 
         mvc.perform(put("/api/requests/{id}/content", id).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"content\":\"Updated\"}"))
@@ -70,7 +70,7 @@ class RequestControllerTest {
 
     @Test
     void deleteAndRejectRequireReason() throws Exception {
-        long id = create("n", "c");
+        String id = create("n", "c");
         mvc.perform(post("/api/requests/{id}/delete", id).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest());
         mvc.perform(post("/api/requests/{id}/delete", id).contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +78,7 @@ class RequestControllerTest {
                 .andExpect(jsonPath("$.state").value("DELETED"))
                 .andExpect(jsonPath("$.reason").value("duplicate"));
 
-        long other = create("n", "c");
+        String other = create("n", "c");
         action(other, "verify");
         mvc.perform(post("/api/requests/{id}/reject", other).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest());
@@ -89,7 +89,7 @@ class RequestControllerTest {
 
     @Test
     void invalidTransitionAndNonEditableContentReturnConflict() throws Exception {
-        long id = create("n", "c");
+        String id = create("n", "c");
         action(id, "publish").andExpect(status().isConflict());
 
         action(id, "verify");
@@ -101,7 +101,8 @@ class RequestControllerTest {
 
     @Test
     void unknownRequestReturnsNotFound() throws Exception {
-        mvc.perform(get("/api/requests/{id}", 999_999)).andExpect(status().isNotFound());
+        mvc.perform(get("/api/requests/{id}", UUID.randomUUID())).andExpect(status().isNotFound());
+        mvc.perform(get("/api/requests/{id}", "not-a-uuid")).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -115,6 +116,7 @@ class RequestControllerTest {
         mvc.perform(get("/api/requests").param("name", prefix))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(10)))
+                .andExpect(jsonPath("$.content[0].name").value(prefix + " memo"))
                 .andExpect(jsonPath("$.page.size").value(10))
                 .andExpect(jsonPath("$.page.totalElements").value(13));
 
@@ -126,20 +128,20 @@ class RequestControllerTest {
                 .andExpect(jsonPath("$.content[0].name").value(prefix + " memo"));
     }
 
-    private long create(String name, String content) throws Exception {
+    private String create(String name, String content) throws Exception {
         String response = mvc.perform(post("/api/requests").contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("name", name, "content", content))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.state").value("CREATED"))
                 .andReturn().getResponse().getContentAsString();
-        return objectMapper.readTree(response).get("id").asLong();
+        return objectMapper.readTree(response).get("id").asText();
     }
 
-    private ResultActions action(long id, String action) throws Exception {
+    private ResultActions action(String id, String action) throws Exception {
         return mvc.perform(post("/api/requests/{id}/{action}", id, action));
     }
 
-    private long publishedNumber(long id) throws Exception {
+    private long publishedNumber(String id) throws Exception {
         action(id, "verify");
         action(id, "accept");
         String response = action(id, "publish").andReturn().getResponse().getContentAsString();

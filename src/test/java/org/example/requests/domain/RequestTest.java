@@ -11,6 +11,8 @@ class RequestTest {
     void newRequestIsCreatedWithHistoryEntry() {
         Request request = new Request("name", "body");
 
+        assertThat(request.getId()).isNotNull();
+        assertThat(request.getVersion()).isNull();
         assertThat(request.getState()).isEqualTo(RequestState.CREATED);
         assertThat(request.getHistory()).hasSize(1);
         assertThat(request.getHistory().get(0).getToState()).isEqualTo(RequestState.CREATED);

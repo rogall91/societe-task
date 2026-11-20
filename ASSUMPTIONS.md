@@ -12,3 +12,4 @@
 10. No authentication.
 11. Concurrent changes to the same request are prevented with optimistic locking (`@Version`). The operation that commits second fails with `409 Conflict` and can be retried.
 12. The domain model is separate from the JPA model. The `RequestRepository` interface uses Spring Data's `Page` and `Pageable` types for paging: they come from Spring Data Commons, not JPA, and avoid a custom paging type.
+13. Request ids are UUIDs created by the domain when a request is created, so they are not guessable and do not depend on the database. A request that has no version yet is treated as new when it is saved.

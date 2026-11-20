@@ -14,6 +14,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,7 +33,7 @@ class ConcurrentUpdateTest {
 
     @Test
     void concurrentChangeOfTheSameRequestIsRejected() {
-        Long id = service.create("name", "body").getId();
+        UUID id = service.create("name", "body").getId();
         TransactionTemplate first = new TransactionTemplate(transactionManager);
         TransactionTemplate second = new TransactionTemplate(transactionManager);
         second.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -50,7 +51,7 @@ class ConcurrentUpdateTest {
 
     @Test
     void savingAStaleCopyIsRejected() {
-        Long id = service.create("name", "body").getId();
+        UUID id = service.create("name", "body").getId();
         Request staleCopy = repository.findById(id).orElseThrow();
         service.verify(id);
 
@@ -62,7 +63,7 @@ class ConcurrentUpdateTest {
 
     @Test
     void savingAnUnknownRequestIsRejected() {
-        Request unknown = Request.restore(999_999L, "name", "body", RequestState.CREATED, null, null, 0L, List.of());
+        Request unknown = Request.restore(UUID.randomUUID(), "name", "body", RequestState.CREATED, null, null, 0L, List.of());
 
         assertThatThrownBy(() -> repository.save(unknown)).isInstanceOf(OptimisticLockingFailureException.class);
     }
