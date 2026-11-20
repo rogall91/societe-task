@@ -9,7 +9,6 @@ import org.example.requests.domain.StateChange;
 import org.example.requests.service.RequestService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +40,7 @@ public class RequestController {
     @GetMapping
     public Page<RequestDto> list(@RequestParam(required = false) String name,
                                  @RequestParam(required = false) RequestState state,
-                                 @PageableDefault(size = 10) Pageable pageable) {
+                                 Pageable pageable) {
         return service.search(name, state, pageable).map(RequestDto::from);
     }
 

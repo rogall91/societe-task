@@ -7,3 +7,12 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: update
+  data:
+    web:
+      pageable:
+        # Page size used when the client does not send ?size=
+        default-page-size: 10
+        # Larger ?size= values are capped to this
+        max-page-size: 100
+        # Serialize pages as {content, page: {size, number, totalElements, totalPages}}
+        serialization-mode: via-dto

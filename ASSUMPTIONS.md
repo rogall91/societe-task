@@ -7,7 +7,7 @@
 5. `PUBLISHED`, `REJECTED` and `DELETED` are final states.
 6. The publication number comes from a database sequence, so it is unique (but not necessarily gap-free).
 7. Each action has its own endpoint. Delete is `POST /{id}/delete` because it takes a body with the reason.
-8. The name filter is a case-insensitive "contains" match. The state filter is an exact match. Pages start at 0. The list is sorted newest first.
+8. The name filter is a case-insensitive "contains" match. The state filter is an exact match. Pages start at 0. The list is sorted newest first. The default page size (10) and maximum page size (100) are set in `application.yml` (`spring.data.web.pageable.*`); a larger `size` is reduced to the maximum rather than rejected.
 9. The database is in-memory H2, so the project runs without setup. The code has no database-specific SQL: publication numbers come from a JPA `@SequenceGenerator` (a `publication_numbers` table records each issued number), so switching databases only needs `spring.datasource.*` and a JDBC driver.
 10. No authentication.
 11. Concurrent changes to the same request are prevented with optimistic locking (`@Version`). The operation that commits second fails with `409 Conflict` and can be retried.

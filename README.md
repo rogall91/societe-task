@@ -31,7 +31,7 @@ mvn verify
 | Method | Path | Body | Description |
 |---|---|---|---|
 | `POST` | `/api/requests` | `{"name", "content"}` | Create a request |
-| `GET` | `/api/requests?name=&state=&page=0&size=10` | – | List with pagination (default size 10), filter by name and state |
+| `GET` | `/api/requests?name=&state=&page=0&size=10` | – | List with pagination (default size 10, max 100, both configurable), filter by name and state |
 | `GET` | `/api/requests/{id}` | – | Get a request |
 | `GET` | `/api/requests/{id}/history` | – | State change history (audit log) |
 | `PUT` | `/api/requests/{id}/content` | `{"content"}` | Edit content (only in `CREATED` or `VERIFIED`) |

@@ -128,6 +128,13 @@ class RequestControllerTest {
                 .andExpect(jsonPath("$.content[0].name").value(prefix + " memo"));
     }
 
+    @Test
+    void pageSizeIsCappedAtConfiguredMaximum() throws Exception {
+        mvc.perform(get("/api/requests").param("size", "1000"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.size").value(100));
+    }
+
     private String create(String name, String content) throws Exception {
         String response = mvc.perform(post("/api/requests").contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("name", name, "content", content))))
