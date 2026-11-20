@@ -25,6 +25,25 @@ class RequestTest {
     }
 
     @Test
+    void textLongerThanTheLimitIsRejected() {
+        String longName = "n".repeat(Request.MAX_NAME_LENGTH + 1);
+        String longContent = "c".repeat(Request.MAX_CONTENT_LENGTH + 1);
+        String longReason = "r".repeat(Request.MAX_REASON_LENGTH + 1);
+
+        assertThatThrownBy(() -> new Request(longName, "body"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("name must be at most 255 characters");
+        assertThatThrownBy(() -> new Request("name", longContent)).isInstanceOf(IllegalArgumentException.class);
+
+        Request request = new Request("n".repeat(Request.MAX_NAME_LENGTH), "body");
+        assertThatThrownBy(() -> request.editContent(longContent)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> request.delete(longReason)).isInstanceOf(IllegalArgumentException.class);
+        request.verify();
+        assertThatThrownBy(() -> request.reject(longReason)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(request.getState()).isEqualTo(RequestState.VERIFIED);
+    }
+
+    @Test
     void happyPathToPublished() {
         Request request = new Request("name", "body");
         request.verify();

@@ -1,6 +1,7 @@
 package org.example.requests.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.requests.domain.Request;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -126,6 +127,42 @@ class RequestControllerTest {
         mvc.perform(get("/api/requests").param("name", prefix).param("state", "VERIFIED"))
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].name").value(prefix + " memo"));
+    }
+
+    @Test
+    void overLongInputIsRejectedWithBadRequest() throws Exception {
+        String longName = "n".repeat(Request.MAX_NAME_LENGTH + 1);
+        String longContent = "c".repeat(Request.MAX_CONTENT_LENGTH + 1);
+        String longReason = "r".repeat(Request.MAX_REASON_LENGTH + 1);
+
+        mvc.perform(post("/api/requests").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", longName, "content", "c"))))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/requests").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("name", "n", "content", longContent))))
+                .andExpect(status().isBadRequest());
+
+        String id = create("n", "c");
+        mvc.perform(put("/api/requests/{id}/content", id).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("content", longContent))))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/requests/{id}/delete", id).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("reason", longReason))))
+                .andExpect(status().isBadRequest());
+        action(id, "verify");
+        mvc.perform(post("/api/requests/{id}/reject", id).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("reason", longReason))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void inputAtMaximumLengthIsAccepted() throws Exception {
+        String id = create("n".repeat(Request.MAX_NAME_LENGTH), "c".repeat(Request.MAX_CONTENT_LENGTH));
+
+        mvc.perform(post("/api/requests/{id}/delete", id).contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("reason", "r".repeat(Request.MAX_REASON_LENGTH)))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("DELETED"));
     }
 
     @Test

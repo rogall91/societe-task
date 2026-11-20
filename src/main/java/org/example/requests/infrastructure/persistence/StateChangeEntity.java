@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestState;
 
 import java.time.Instant;
@@ -30,6 +31,7 @@ class StateChangeEntity {
     @Column(nullable = false)
     RequestState toState;
 
+    @Column(length = Request.MAX_REASON_LENGTH)
     String reason;
 
     @Column(nullable = false)

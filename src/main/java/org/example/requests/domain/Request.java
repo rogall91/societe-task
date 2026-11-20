@@ -16,6 +16,10 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Request {
 
+    public static final int MAX_NAME_LENGTH = 255;
+    public static final int MAX_CONTENT_LENGTH = 10_000;
+    public static final int MAX_REASON_LENGTH = 255;
+
     private final UUID id;
     private final String name;
     private String content;
@@ -26,7 +30,8 @@ public class Request {
     private final List<StateChange> history;
 
     public Request(String name, String content) {
-        this(UUID.randomUUID(), requireText(name, "name"), requireText(content, "content"), RequestState.CREATED,
+        this(UUID.randomUUID(), requireText(name, "name", MAX_NAME_LENGTH),
+                requireText(content, "content", MAX_CONTENT_LENGTH), RequestState.CREATED,
                 null, null, null, new ArrayList<>());
         history.add(new StateChange(null, RequestState.CREATED, null));
     }
@@ -43,7 +48,7 @@ public class Request {
         if (!state.isContentEditable()) {
             throw new InvalidStateException("Content cannot be edited in state " + state);
         }
-        this.content = requireText(content, "content");
+        this.content = requireText(content, "content", MAX_CONTENT_LENGTH);
     }
 
     public void verify() {
@@ -55,11 +60,11 @@ public class Request {
     }
 
     public void reject(String reason) {
-        moveTo(RequestState.REJECTED, requireText(reason, "reason"));
+        moveTo(RequestState.REJECTED, requireText(reason, "reason", MAX_REASON_LENGTH));
     }
 
     public void delete(String reason) {
-        moveTo(RequestState.DELETED, requireText(reason, "reason"));
+        moveTo(RequestState.DELETED, requireText(reason, "reason", MAX_REASON_LENGTH));
     }
 
     public void publish(PublicationNumberGenerator generator) {
@@ -78,9 +83,12 @@ public class Request {
         }
     }
 
-    private static String requireText(String value, String field) {
+    private static String requireText(String value, String field, int maxLength) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(field + " must not be blank");
+        }
+        if (value.length() > maxLength) {
+            throw new IllegalArgumentException(field + " must be at most " + maxLength + " characters");
         }
         return value;
     }

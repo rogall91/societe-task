@@ -1,7 +1,7 @@
 # Assumptions
 
 1. Only the content can be edited; the name is fixed at creation.
-2. Name, content and reason must not be blank.
+2. Name, content and reason must not be blank. Maximum lengths: name 255, content 10,000, reason 255 characters. Longer values are rejected with `400` (checked by `@Size` on the request bodies and again in the domain); the database columns use the same limits, defined once as constants on `Request`.
 3. A reason is required only for reject and delete. The latest reason is stored on the request, and every reason is stored in the history.
 4. Delete changes the state to `DELETED`; the record is not removed from the database.
 5. `PUBLISHED`, `REJECTED` and `DELETED` are final states.

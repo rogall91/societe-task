@@ -10,6 +10,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestState;
 
 import java.time.Instant;
@@ -28,16 +29,17 @@ class RequestEntity {
     @Column(nullable = false, updatable = false)
     Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = Request.MAX_NAME_LENGTH)
     String name;
 
-    @Column(nullable = false, length = 10000)
+    @Column(nullable = false, length = Request.MAX_CONTENT_LENGTH)
     String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     RequestState state;
 
+    @Column(length = Request.MAX_REASON_LENGTH)
     String reason;
 
     @Column(unique = true)

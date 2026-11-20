@@ -2,6 +2,7 @@ package org.example.requests.web;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.example.requests.domain.Request;
 import org.example.requests.domain.RequestState;
@@ -84,13 +85,14 @@ public class RequestController {
         return RequestDto.from(service.delete(id, body.reason()));
     }
 
-    public record CreateBody(@NotBlank String name, @NotBlank String content) {
+    public record CreateBody(@NotBlank @Size(max = Request.MAX_NAME_LENGTH) String name,
+                             @NotBlank @Size(max = Request.MAX_CONTENT_LENGTH) String content) {
     }
 
-    public record ContentBody(@NotBlank String content) {
+    public record ContentBody(@NotBlank @Size(max = Request.MAX_CONTENT_LENGTH) String content) {
     }
 
-    public record ReasonBody(@NotBlank String reason) {
+    public record ReasonBody(@NotBlank @Size(max = Request.MAX_REASON_LENGTH) String reason) {
     }
 
     public record RequestDto(UUID id, String name, String content, RequestState state, String reason,
